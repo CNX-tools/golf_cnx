@@ -4,5 +4,6 @@
   "files.exclude": {
     ".venv": true
   },
-  "explorer.excludeGitIgnore": false
+  "explorer.excludeGitIgnore": false,
+  "prettier.printWidth": 120
 }
