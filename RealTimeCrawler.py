@@ -8,6 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from datetime import datetime
+from telegrambot import send_message
 
 from src.utils.SeleniumUtils import UserActivity
 
@@ -47,6 +48,7 @@ def check_available_teetime(driver):
 
 
 def check_for_each_day(driver, date):
+    global message
     if check_available_teetime(driver):
         # Try to click the first available session on this date
         try:
@@ -56,16 +58,19 @@ def check_for_each_day(driver, date):
             session_info.extend(session_info[2].split(' | '))
             del session_info[2]
             print_log(f'Found available tee time on date {date}: {session_info}')
+            message += f'Found available tee time on date {date}: {session_info}\n'
             return True
         except Exception as e:
             print_log(f'Cannot click the first available session with error: {e}')
             return False
     else:
         print_log(f'No available tee time on date {date}')
+        message += f'No available tee time on date {date}\n'
         return False
 
 
 def run(booking_url):
+    global message
     browser = UserActivity(headless=True)
     driver = browser.driver
     # Open the booking page
@@ -88,7 +93,8 @@ def run(booking_url):
 
         dates = [date for _, date in current_active_dates]
 
-        print_log(f'Current active dates: {",".join(dates)}')
+        print_log(f'Current active dates: {", ".join(dates)}')
+        message += f'Current active dates: {", ".join(dates)}\n'
 
     except Exception as e:
         print_log(e)
@@ -131,5 +137,11 @@ if __name__ == '__main__':
     while True:
         print('-' * 120)
         print_log(f'Start checking with time frame: {start_time}h - {end_time}h')
+        # Text to telegram
+        message = ''
+        message += f'Start checking with time frame: {start_time}h - {end_time}h at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}\n'
         run(booking_url)
+        # Send message to telegram
+        send_message(message)
+        print_log('Send message to telegram successfully')
         time.sleep(check_period * 60)
