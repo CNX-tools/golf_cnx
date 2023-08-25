@@ -1,0 +1,6 @@
+{   
+    "_comment": "interval: minutes between each check; start_time: time of day to start checking (24h format); end_time: time of day to stop checking (24h format)",
+    "check_period": 1, 
+    "start_time": 7,
+    "end_time": 23
+}

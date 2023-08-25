@@ -9,7 +9,7 @@ from src.utils.SeleniumUtils import UserActivity
 from src.utils.SignupUtils import fill
 from src.utils.GetInfoUtils import get_random_info
 
-browser = UserActivity()
+browser = UserActivity(headless=False)
 driver = browser.driver
 
 # Constant URL
