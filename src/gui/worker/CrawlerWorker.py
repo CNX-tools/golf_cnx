@@ -201,7 +201,8 @@ class CrawlerWorker(QObject):
                 self.logger.emit('Send message to telegram successfully', 'green')
             if self._is_running:
                 time.sleep(check_period * 60)
-            self.logger.emit('Crawler stopped', 'green')
+            else:
+                self.logger.emit('Crawler stopped', 'green')
 
     def destroy(self):
         self._is_running = False
