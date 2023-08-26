@@ -21,18 +21,18 @@ def print_log(message):
 def quit_driver(driver):
     driver.quit()
     try:
-        subprocess.run(["taskkill", "/F", "/IM", "chromium.exe"], check=False)
+        subprocess.run(["taskkill", "/F", "/IM", "chromium.exe"], check=True)
     except Exception as e:
-        print_log(e)
+        pass
 
 
 def move_to_next_day(driver, css_selector):
     try:
-        date_button = WebDriverWait(driver, 10).until(
+        date_button = WebDriverWait(driver, 20).until(
             lambda x: x.find_element(By.CSS_SELECTOR, css_selector))
         date_button.click()
         WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, 'rightlist')))
+            EC.visibility_of_element_located((By.CLASS_NAME, 'rightlist')))
     except Exception as e:
         print_log(e)
         quit_driver(driver)
@@ -40,7 +40,7 @@ def move_to_next_day(driver, css_selector):
 
 def check_available_teetime(driver):
     try:
-        no_teetime = WebDriverWait(driver, 3).until(
+        no_teetime = WebDriverWait(driver, 30).until(
             lambda x: x.find_element(By.CLASS_NAME, 'divNoTeeTime'))
         return False
     except Exception as e:
@@ -52,41 +52,65 @@ def check_for_each_day(driver, date):
     if check_available_teetime(driver):
         # Try to click the first available session on this date
         try:
-            button = WebDriverWait(driver, 10).until(
+            button = WebDriverWait(driver, 30).until(
                 lambda x: x.find_element(By.CLASS_NAME, 'btnStepper'))
             session_info = button.text.split('\n')
-            session_info.extend(session_info[2].split(' | '))
-            del session_info[2]
+            session_info.extend(session_info[1].split(' | '))
+            del session_info[1]
             print_log(f'Found available tee time on date {date}: {session_info}')
-            message += f'Found available tee time on date {date}: {session_info}\n'
+            message += f'Found available tee time on date {date}: {session_info}\n\n'
             return True
         except Exception as e:
             print_log(f'Cannot click the first available session with error: {e}')
             return False
     else:
         print_log(f'No available tee time on date {date}')
-        message += f'No available tee time on date {date}\n'
+        message += f'No available tee time on date {date}\n\n'
         return False
 
 
 def run(booking_url):
     global message
+    current_active_dates = []
     browser = UserActivity(headless=True)
     driver = browser.driver
     # Open the booking page
     try:
         print_log(f'Opening booking page: {booking_url}')
         driver.get(booking_url)
-        WebDriverWait(driver, 30).until(
-            EC.presence_of_element_located((By.CLASS_NAME, 'rightlist')))
     except Exception as e:
-        print_log(e)
+        print_log('Timeout, trying again ...')
+        driver.refresh()
+
+    # Choose Riverway options
+    try:
+        WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.CLASS_NAME, 'courses-selection')))
+        time.sleep(1)
+        print_log('Choosing Riverway option ...')
+        with open(os.path.join(os.getcwd(), 'src', 'utils', 'javascript', 'Riverway.js'), 'r', encoding='utf8') as f:
+            js = f.read()
+        driver.execute_script(js)
+    except Exception as e:
+        print(e)
         quit_driver(driver)
 
-    time.sleep(5)
+    # Choose the 4 player button
+    try:
+        time.sleep(1)
+        print_log('Choosing 4 players option ...')
+        four_player_button = WebDriverWait(driver, 30).until(
+            lambda x: x.find_element(By.ID, 'mat-button-toggle-4-button'))
+        four_player_button.click()
+    except Exception as e:
+        print(e)
+        quit_driver(driver)
 
     # Get the current active date from execute script
     try:
+        WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.CLASS_NAME, 'main-calendar-container')))
+        time.sleep(1)
         with open(os.path.join(os.getcwd(), 'src', 'utils', 'javascript', 'GetActiveDate.js'), 'r', encoding='utf8') as f:
             js = f.read()
         current_active_dates = driver.execute_script(js)
@@ -94,13 +118,13 @@ def run(booking_url):
         dates = [date for _, date in current_active_dates]
 
         print_log(f'Current active dates: {", ".join(dates)}')
-        message += f'Current active dates: {", ".join(dates)}\n'
+        message += f'Current active dates: {", ".join(dates)}\n\n'
 
     except Exception as e:
         print_log(e)
         quit_driver(driver)
 
-    time.sleep(2)
+    time.sleep(1)
 
     date_that_have_available_teetime = []
     available_teetime = False
@@ -139,7 +163,7 @@ if __name__ == '__main__':
         print_log(f'Start checking with time frame: {start_time}h - {end_time}h')
         # Text to telegram
         message = ''
-        message += f'Start checking with time frame: {start_time}h - {end_time}h at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}\n'
+        message += f'Start checking with time frame: {start_time}h - {end_time}h\n\n'
         run(booking_url)
         # Send message to telegram
         send_message(message)
