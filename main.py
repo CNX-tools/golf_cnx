@@ -2,9 +2,11 @@ import traceback
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMessageBox, QStackedWidget
+
 import sys
 import os
 
+from src.gui.SignupGUI import SignupGUI
 from src.gui.SigninGUI import SiginGUI
 
 
@@ -25,6 +27,9 @@ if __name__ == "__main__":
 
         sign_in_gui = SiginGUI(main_window)
         main_window.addWidget(sign_in_gui)
+
+        sign_up_gui = SignupGUI(main_window)
+        main_window.addWidget(sign_up_gui)
 
         # Set the main window size
         main_window.setFixedHeight(650)

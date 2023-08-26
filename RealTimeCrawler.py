@@ -63,7 +63,7 @@ def check_for_each_day(driver, date):
         return False
 
 
-def run(booking_url):
+def process(booking_url):
     global message
     current_active_dates = []
     browser = UserActivity(headless=True)
@@ -140,7 +140,7 @@ def run(booking_url):
         return True
 
 
-if __name__ == '__main__':
+def main():
     # Load configuration
     config_path = os.path.join(os.getcwd(), 'configuration', 'crawler.json')
     with open(config_path, 'r', encoding='utf8') as f:
@@ -158,7 +158,7 @@ if __name__ == '__main__':
         # Text to telegram
         message = ''
         message += f'Start checking with time frame: {start_time}h - {end_time}h - Riverway - 4 players\n\n'
-        if run(booking_url):
+        if process(booking_url):
             # Send message to telegram
             send_message(message)
             print_log('Send message to telegram successfully')
