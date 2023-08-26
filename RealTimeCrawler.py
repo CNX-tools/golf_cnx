@@ -7,15 +7,10 @@ import time
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from datetime import datetime
-from telegrambot import send_message
 
+from src.utils.TelegramBot import send_message
+from src.utils.PrintUtils import print_log
 from src.utils.SeleniumUtils import UserActivity
-
-
-def print_log(message):
-    date_and_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f'[{date_and_time}]: {message}')
 
 
 def quit_driver(driver):
@@ -65,7 +60,6 @@ def check_for_each_day(driver, date):
             return False
     else:
         print_log(f'No available tee time on date {date}')
-        message += f'No available tee time on date {date}\n\n'
         return False
 
 
@@ -126,7 +120,6 @@ def run(booking_url):
 
     time.sleep(1)
 
-    date_that_have_available_teetime = []
     available_teetime = False
     # Iterate through the dates, check whether exist any session available
     for css_selector, date in current_active_dates:
@@ -140,10 +133,11 @@ def run(booking_url):
             continue
 
     if not available_teetime:
-        print_log('No available tee time found')
         quit_driver(driver)
+        return False
     else:
         quit_driver(driver)
+        return True
 
 
 if __name__ == '__main__':
@@ -160,12 +154,12 @@ if __name__ == '__main__':
     # Run the crawler in a loop with a period of 5 minutes
     while True:
         print('-' * 120)
-        print_log(f'Start checking with time frame: {start_time}h - {end_time}h')
+        print_log(f'Start checking with time frame: {start_time}h - {end_time}h  - Riverway - 4 players')
         # Text to telegram
         message = ''
-        message += f'Start checking with time frame: {start_time}h - {end_time}h\n\n'
-        run(booking_url)
-        # Send message to telegram
-        send_message(message)
-        print_log('Send message to telegram successfully')
+        message += f'Start checking with time frame: {start_time}h - {end_time}h - Riverway - 4 players\n\n'
+        if run(booking_url):
+            # Send message to telegram
+            send_message(message)
+            print_log('Send message to telegram successfully')
         time.sleep(check_period * 60)
