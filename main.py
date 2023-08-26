@@ -21,6 +21,9 @@ if __name__ == "__main__":
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
+    # Set the time zone to Vancouver
+    os.environ['TZ'] = 'America/Vancouver'
+
     try:
         app = QApplication(sys.argv)
         main_window = QStackedWidget()
