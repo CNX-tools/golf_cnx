@@ -11,9 +11,14 @@ from src.utils.PrintUtils import print_log
 
 def fill(driver: Chrome, email: str, password: str):
     # Fill email:
+    WebDriverWait(driver, 30).until(
+        EC.visibility_of_element_located((By.NAME, 'email')))
+
     time.sleep(1)
+
     email_input = WebDriverWait(driver, 30).until(
         lambda x: x.find_element(By.NAME, 'email'))
+    print('email_input: ', email_input)
     email_input.send_keys(email)
 
     # Hit enter
@@ -26,7 +31,7 @@ def fill(driver: Chrome, email: str, password: str):
 
     time.sleep(2)
     current_url = driver.current_url
-    print_log('Current url: ' + current_url)
+    print(current_url)
 
     if current_url == r'https://golfburnaby.cps.golf/onlineresweb/auth/register':  # The user hasn't registered yet
         print_log('The user hasn\'t registered yet ...')

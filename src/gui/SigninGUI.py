@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -84,6 +85,7 @@ class SiginGUI(BaseGUI):
             self.crawler.start_check.connect(self.update_log_horizontal_line)
             self.crawler.start_check.connect(lambda: self.start_button.setText('STOP'))
             self.crawler.logger.connect(self.update_log)
+            self.crawler.start_booking.connect(self.run_booking_procedure)
 
             # When thread is finished
             self.crawler_thread.finished.connect(lambda: self.start_button.setText('START'))
@@ -92,3 +94,22 @@ class SiginGUI(BaseGUI):
             self.crawler_thread.start()
         except:
             pass
+
+    def run_booking_procedure(self, css_selector: str, date: str):
+        # Define the command to run
+        python_file_dir = os.path.join(os.getcwd(), 'src', 'gui', 'worker', 'BookingWorker.py')
+        headless_value = "True" if self.headless_booking_checkBox.isChecked() else "False"
+        command = [
+            "python",               # Command to run
+            python_file_dir,    # Script filename
+            "--credential_mode=signin",  # Credential argument with value
+            f"--day={int(date)}",        # Dateday argument with value
+            f'--selector="{css_selector}"',    # Selector argument with value (enclosed in quotes)
+            f'--headless={headless_value}'
+        ]
+
+        # Run the command in a new shell
+        process = subprocess.Popen(command, shell=True)
+
+        # # Wait for the process to finish
+        # process.wait()

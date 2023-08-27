@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 
-def fill(driver: Chrome, email: str, first_name: str, last_name: str, pass_word: str, phone: str):
+def fill(driver: Chrome, email: str, first_name: str, last_name: str, password: str, phone: str):
     # Fill email:
     email_input = driver.find_element(By.CSS_SELECTOR, '#mat-input-0')
     email_input.send_keys(email)
@@ -25,13 +25,13 @@ def fill(driver: Chrome, email: str, first_name: str, last_name: str, pass_word:
 
     # Fill password:
     password_input = driver.find_element(By.CSS_SELECTOR, '#mat-input-3')
-    password_input.send_keys(pass_word)
+    password_input.send_keys(password)
 
     time.sleep(0.2)
 
     # Fill confirm password:
     confirm_password_input = driver.find_element(By.CSS_SELECTOR, '#mat-input-4')
-    confirm_password_input.send_keys(pass_word)
+    confirm_password_input.send_keys(password)
 
     time.sleep(0.2)
 
