@@ -9,31 +9,31 @@ def fill(driver: Chrome, email: str, first_name: str, last_name: str, password: 
     email_input = driver.find_element(By.CSS_SELECTOR, '#mat-input-0')
     email_input.send_keys(email)
 
-    time.sleep(0.2)
+    time.sleep(1)
 
     # Fill first name:
     first_name_input = driver.find_element(By.CSS_SELECTOR, '#mat-input-1')
     first_name_input.send_keys(first_name)
 
-    time.sleep(0.2)
+    time.sleep(1)
 
     # Fill last name:
     last_name_input = driver.find_element(By.CSS_SELECTOR, '#mat-input-2')
     last_name_input.send_keys(last_name)
 
-    time.sleep(0.2)
+    time.sleep(1)
 
     # Fill password:
     password_input = driver.find_element(By.CSS_SELECTOR, '#mat-input-3')
     password_input.send_keys(password)
 
-    time.sleep(0.2)
+    time.sleep(1)
 
     # Fill confirm password:
     confirm_password_input = driver.find_element(By.CSS_SELECTOR, '#mat-input-4')
     confirm_password_input.send_keys(password)
 
-    time.sleep(0.2)
+    time.sleep(1)
 
     # Fill phone:
     phone_input = driver.find_element(By.CSS_SELECTOR, '#mat-input-5')

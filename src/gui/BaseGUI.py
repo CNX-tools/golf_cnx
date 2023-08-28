@@ -64,10 +64,10 @@ class BaseGUI(QWidget):
         self.get_home_button.setGeometry(QRect(-1, 98, 274, 50))
         self.get_home_button.setFont(self.font)
 
-        self.telegram_bot_settings_button = QPushButton(self)
-        self.telegram_bot_settings_button.setObjectName(u"telegram_bot_settings_button")
-        self.telegram_bot_settings_button.setGeometry(QRect(-1, 147, 274, 50))
-        self.telegram_bot_settings_button.setFont(self.font)
+        # self.telegram_bot_settings_button = QPushButton(self)
+        # self.telegram_bot_settings_button.setObjectName(u"telegram_bot_settings_button")
+        # self.telegram_bot_settings_button.setGeometry(QRect(-1, 147, 274, 50))
+        # self.telegram_bot_settings_button.setFont(self.font)
 
         self.start_button = QPushButton(self)
         self.start_button.setObjectName(u"start_button")
@@ -142,7 +142,7 @@ class BaseGUI(QWidget):
         self.start_button.setText(QCoreApplication.translate("Form", u"START", None))
         self.logs_label.setText(QCoreApplication.translate("Form", u"Logs", None))
         self.clear_logs_button.setText(QCoreApplication.translate("Form", u"Clear", None))
-        self.telegram_bot_settings_button.setText(QCoreApplication.translate("Form", u"Telegram Bot Setting", None))
+        # self.telegram_bot_settings_button.setText(QCoreApplication.translate("Form", u"Telegram Bot Setting", None))
         self.credential_mode_label.setText(QCoreApplication.translate("Form", u"Credential Mode :", None))
         self.view_reservation_button.setText(QCoreApplication.translate(
             "Form", u"Click here to view reservation details", None))

@@ -49,14 +49,14 @@ def __get_phone() -> str:
         return use_phone_number
 
 
-def get_random_info(use_phone='') -> dict:
+def get_random_info(use_phone=None) -> dict:
     # Get the random info
     email = __get_email()
     first_name = __get_first_name()
     last_name = __get_last_name()
     password = __get_password()
 
-    if use_phone == '':
+    if use_phone is None:
         phone = __get_phone()
     else:
         phone = use_phone

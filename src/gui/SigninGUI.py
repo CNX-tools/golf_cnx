@@ -81,7 +81,7 @@ class SiginGUI(BaseGUI):
             if self.crawler_thread.isRunning():
                 self.crawler.destroy()
 
-            self.crawler = CrawlerWorker(self.headless_crawl_checkBox.isChecked())
+            self.crawler = CrawlerWorker(self.headless_crawl_checkBox.isChecked(), credential_mode='signin')
             self.crawler.moveToThread(self.crawler_thread)
             self.crawler.finished.connect(self.crawler_thread.quit)
             self.crawler.finished.connect(self.crawler.deleteLater)

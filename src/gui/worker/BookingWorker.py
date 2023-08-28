@@ -18,11 +18,12 @@ import src.utils.SigninUtils as signin
 import src.utils.SignupUtils as signup
 from src.utils.PrintUtils import print_log
 from src.utils.GetInfoUtils import get_random_info
-from src.utils.DayCompleteUtils import get_day_complete_string
+from src.utils.DayCompleteUtils import get_day_complete_string, whether_day_has_reservation_before
 from src.utils.GoogleSheetUtils import update_data
 
 # Constant URL
 SIGNIN_URL = "https://golfburnaby.cps.golf/onlineresweb/auth/verify-email"
+SIGNUP_URL = "https://golfburnaby.cps.golf/onlineresweb/auth/register"
 
 
 class BookingWorker(QObject):
@@ -124,11 +125,16 @@ class BookingWorker(QObject):
 
             try:
                 WebDriverWait(driver, 30).until(
-                    EC.visibility_of_element_located((By.NAME, 'email')))
+                    EC.visibility_of_element_located((By.ID, 'mat-input-0')))
                 time.sleep(1.5)
 
                 random_info = get_random_info()
+            except Exception as e:
+                print_log(e)
+                self.logger.emit(str(e), 'red')
+                self.__quit_driver(driver)
 
+            try:
                 signup.fill(
                     driver=driver,
                     email=random_info['email'],
@@ -137,6 +143,8 @@ class BookingWorker(QObject):
                     password=random_info['password'],
                     phone=random_info['phone']
                 )
+
+                time.sleep(3)
 
                 WebDriverWait(driver, 30).until(
                     EC.presence_of_element_located((By.CLASS_NAME, 'site-name')))
@@ -148,6 +156,7 @@ class BookingWorker(QObject):
                     'last_name': data['first_name'],
                     'phone': random_info['phone']
                 }
+
             except Exception as e:
                 print_log(e)
                 self.logger.emit(str(e), 'red')
@@ -255,9 +264,14 @@ class BookingWorker(QObject):
         print_log('-' * 120)
         # Open Sign In page
         try:
-            driver.get(SIGNIN_URL)
-            print_log('Opening Signin page ...')
-            self.logger.emit('Opening Signin page ...', 'black')
+            if self.credential_mode == 'signin':
+                driver.get(SIGNIN_URL)
+                print_log('Opening Signin page ...')
+                self.logger.emit('Opening Signin page ...', 'black')
+            else:
+                driver.get(SIGNUP_URL)
+                print_log('Opening Signup page ...')
+                self.logger.emit('Opening Signup page ...', 'black')
         except Exception as e:
             print_log(e)
             self.logger.emit(str(e), 'red')
@@ -268,6 +282,16 @@ class BookingWorker(QObject):
 
         if self.using_credential_info is None:
             return
+
+        if self.credential_mode == 'signup':
+            # Check whether the email together with the date has been booked before or not
+            if whether_day_has_reservation_before(int(self.day), self.using_credential_info['email']):
+                print_log(
+                    f'Date {get_day_complete_string(int(self.day))} has reservation before with email {self.using_credential_info["email"]}, skip ...')
+                self.logger.emit(
+                    f'Date {get_day_complete_string(int(self.day))} has reservation before with email {self.using_credential_info["email"]}, skip ...', 'blue')
+                self.__quit_driver(driver)
+                return
 
         # Open the booking page
         try:

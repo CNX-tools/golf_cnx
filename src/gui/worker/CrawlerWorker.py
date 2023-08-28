@@ -26,10 +26,11 @@ class CrawlerWorker(QObject):
     logger = pyqtSignal(str, str)
     start_booking = pyqtSignal(str, str)
 
-    def __init__(self, headless: bool, parent=None):
+    def __init__(self, headless: bool, credential_mode, parent=None):
         super(CrawlerWorker, self).__init__(parent)
         self.message = ''
         self.headless = headless
+        self.credential_mode = credential_mode
         self._is_running = True
 
     def __quit_driver(self, driver):
@@ -62,16 +63,17 @@ class CrawlerWorker(QObject):
             return True
 
     def check_for_each_day(self, driver, date):
-        # Get the current email
-        with open(os.path.join(os.getcwd(), 'data', 'sign_in.json'), 'r', encoding='utf8') as f:
-            user_data = json.load(f)
-            email = user_data['email']
+        if self.credential_mode == 'signin':
+            # Get the current email
+            with open(os.path.join(os.getcwd(), 'data', 'sign_in.json'), 'r', encoding='utf8') as f:
+                user_data = json.load(f)
+                email = user_data['email']
 
-        if whether_day_has_reservation_before(int(date), email):
-            print_log(f'Date {get_day_complete_string(int(date))} has reservation before with email {email}, skip ...')
-            self.logger.emit(
-                f'Date {get_day_complete_string(int(date))} has reservation before with email {email}, skip ...', 'blue')
-            return False
+            if whether_day_has_reservation_before(int(date), email):
+                print_log(f'Date {get_day_complete_string(int(date))} has reservation before with email {email}, skip ...')
+                self.logger.emit(
+                    f'Date {get_day_complete_string(int(date))} has reservation before with email {email}, skip ...', 'blue')
+                return False
 
         if self.check_available_teetime(driver):
             # Try to click the first available session on this date
