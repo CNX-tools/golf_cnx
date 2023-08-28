@@ -34,8 +34,8 @@ class CrawlerWorker(QObject):
     def __quit_driver(self, driver):
         driver.quit()
         try:
-            subprocess.run(["taskkill", "/F", "/IM", "chromium.exe"], check=True)
             subprocess.run(["taskkill", "/F", "/IM", "chromedriver.exe"], check=True)
+            subprocess.run(["taskkill", "/F", "/IM", "chromium.exe"], check=True)
         except Exception as e:
             print_log(e)
             self.logger.emit(str(e), 'red')
@@ -172,6 +172,7 @@ class CrawlerWorker(QObject):
         time.sleep(1)
 
         # Iterate through the dates, check whether exist any session available
+        available_teetime = False
         for css_selector, date in current_active_dates:
             if self._is_running is False:
                 return False
@@ -182,10 +183,14 @@ class CrawlerWorker(QObject):
                 time.sleep(2)
                 check_result = self.check_for_each_day(driver, date)
                 if check_result:
+                    available_teetime = True
                     self.start_booking.emit(css_selector, date)
                     self.destroy()
                 else:
                     continue
+
+        if not available_teetime:
+            self.__quit_driver(driver)
 
     def run(self):
         """

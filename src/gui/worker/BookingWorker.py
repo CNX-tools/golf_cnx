@@ -43,8 +43,8 @@ class BookingWorker(QObject):
     def __quit_driver(self, driver) -> None:
         try:
             driver.quit()
-            subprocess.run(["taskkill", "/F", "/IM", "chromium.exe"], check=True)
             subprocess.run(["taskkill", "/F", "/IM", "chromedriver.exe"], check=True)
+            subprocess.run(["taskkill", "/F", "/IM", "chromium.exe"], check=True)
         except Exception as e:
             self.logger.emit(str(e), 'red')
             print_log(e)
