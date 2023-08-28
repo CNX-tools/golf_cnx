@@ -8,3 +8,5 @@ pytz==2023.3
 google-spreadsheet==0.0.6
 google-auth-oauthlib==1.0.0
 pandas==2.0.3
+gspread==5.10.0
+pyOpenSSL==23.2.0

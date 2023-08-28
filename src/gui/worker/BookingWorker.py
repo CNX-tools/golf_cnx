@@ -18,6 +18,8 @@ import src.utils.SigninUtils as signin
 import src.utils.SignupUtils as signup
 from src.utils.PrintUtils import print_log
 from src.utils.GetInfoUtils import get_random_info
+from src.utils.DayCompleteUtils import get_day_complete_string
+from src.utils.GoogleSheetUtils import update_data
 
 # Constant URL
 SIGNIN_URL = "https://golfburnaby.cps.golf/onlineresweb/auth/verify-email"
@@ -28,7 +30,7 @@ class BookingWorker(QObject):
     started = pyqtSignal()
     logger = pyqtSignal(str, str)
 
-    def __init__(self, headless, day, css_selector, credential_mode, parent=None) -> None:
+    def __init__(self, headless, day: str, css_selector, credential_mode, parent=None) -> None:
         super(BookingWorker, self).__init__(parent)
         self.headless = headless
         self.day = day
@@ -152,23 +154,35 @@ class BookingWorker(QObject):
                 self.__quit_driver(driver)
 
     def store_reservation_info(self, session_info) -> None:
-        # Store the reservation info
-        reservation_dir = os.path.join(os.getcwd(), 'data', 'reservation.csv')
+        """
+            Store the reservation info to the spreadsheet
+        Args:
+            session_info (list): A list of session info of time, price, holes, players
+        """
 
         # Building the reservation info
         name = f"{self.using_credential_info['first_name']} {self.using_credential_info['last_name']}"
 
-        reservation_info = [self.day,
-                            self.using_credential_info['email'],
-                            self.using_credential_info['password'],
-                            name]
+        reservation_info_dict = {
+            'date': get_day_complete_string(int(self.day)),
+            'email': self.using_credential_info['email'],
+            'password': self.using_credential_info['password'],
+            'name': name,
+            'time': session_info[0],
+            'price (1 person)': session_info[1],
+            'holes': session_info[2],
+            'players': session_info[3]
+        }
 
-        reservation_info.extend(session_info)
-
-        info_string = ','.join(reservation_info)
-
-        with open(reservation_dir, 'a', encoding='utf8') as f:
-            f.write(info_string + '\n')
+        print_log('Updating the reservation info to the spreadsheet ...')
+        self.logger.emit('Updating the reservation info to the spreadsheet ...', 'black')
+        try:
+            update_data(reservation_info_dict)
+            print_log('The reservation info is updated to the spreadsheet ...')
+            self.logger.emit('The reservation info is updated to the spreadsheet ...', 'green')
+        except Exception as e:
+            print_log(e)
+            self.logger.emit(str(e), 'red')
 
     def make_reservation(self, driver) -> None:
         try:
@@ -224,24 +238,15 @@ class BookingWorker(QObject):
             self.logger.emit(str(e), 'red')
             self.__quit_driver(driver)
 
-        try:
-            # Check whether the element with class name "mat-card-title" exist or not
-            success_message = WebDriverWait(driver, 20).until(
-                EC.visibility_of_element_located((By.CLASS_NAME, 'mat-card-title')))
+        # Store the reservation info
+        self.logger.emit('Storing the reservation info ...', 'black')
+        self.store_reservation_info(session_info)
 
-            if success_message.is_displayed():
-                print_log('The reservation is successful ...')
-                self.logger.emit('The reservation is successful ...', 'green')
-                self.store_reservation_info(session_info)
-
-                # Wait for 5 seconds before quit the driver
-                self.logger.emit('Waiting for 8 seconds before quit the driver ...', 'black')
-                time.sleep(8)
-                self.__quit_driver(driver)
-        except Exception as e:
-            print_log('The reservation is failed ...')
-            self.logger.emit('The reservation is failed ...', 'red')
-            self.__quit_driver(driver)
+        # Wait for 5 seconds before quit the driver
+        self.logger.emit('Making reservation successfully ...', 'green')
+        self.logger.emit('Waiting for 8 seconds before quit the driver ...', 'black')
+        time.sleep(8)
+        self.__quit_driver(driver)
 
     def process(self, booking_url):
         browser = UserActivity(headless=self.headless)

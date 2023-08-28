@@ -17,6 +17,7 @@ from selenium.webdriver.common.by import By
 from utils.TelegramBot import send_message
 from utils.PrintUtils import print_log
 from utils.SeleniumUtils import UserActivity
+from utils.DayCompleteUtils import whether_day_has_reservation_before, get_day_complete_string
 
 
 class CrawlerWorker(QObject):
@@ -61,6 +62,17 @@ class CrawlerWorker(QObject):
             return True
 
     def check_for_each_day(self, driver, date):
+        # Get the current email
+        with open(os.path.join(os.getcwd(), 'data', 'sign_in.json'), 'r', encoding='utf8') as f:
+            user_data = json.load(f)
+            email = user_data['email']
+
+        if whether_day_has_reservation_before(int(date), email):
+            print_log(f'Date {get_day_complete_string(int(date))} has reservation before with email {email}, skip ...')
+            self.logger.emit(
+                f'Date {get_day_complete_string(int(date))} has reservation before with email {email}, skip ...', 'blue')
+            return False
+
         if self.check_available_teetime(driver):
             # Try to click the first available session on this date
             try:
@@ -158,7 +170,6 @@ class CrawlerWorker(QObject):
 
         time.sleep(1)
 
-        available_teetime = False
         # Iterate through the dates, check whether exist any session available
         for css_selector, date in current_active_dates:
             if self._is_running is False:
@@ -170,18 +181,10 @@ class CrawlerWorker(QObject):
                 time.sleep(2)
                 check_result = self.check_for_each_day(driver, date)
                 if check_result:
-                    available_teetime = True
                     self.start_booking.emit(css_selector, date)
                     self.destroy()
                 else:
                     continue
-
-        if not available_teetime:
-            self.__quit_driver(driver)
-            return False
-        else:
-            self.__quit_driver(driver)
-            return True
 
     def run(self):
         """
@@ -208,11 +211,8 @@ class CrawlerWorker(QObject):
             # Text to telegram
             self.message = ''
             self.message += f'Start checking with time frame: {start_time}h - {end_time}h - Riverway - 4 players\n\n'
-            if self.process(booking_url):
-                # Send message to telegram
-                send_message(self.message)
-                print_log('Send message to telegram successfully')
-                self.logger.emit('Send message to telegram successfully', 'green')
+
+            self.process(booking_url)
 
             if self._is_running:
                 time.sleep(check_period * 60)

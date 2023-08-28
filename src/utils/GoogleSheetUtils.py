@@ -2,7 +2,7 @@ import os
 import gspread
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
-from PrintUtils import print_log
+from src.utils.PrintUtils import print_log
 
 scopes = [
     'https://www.googleapis.com/auth/spreadsheets',
@@ -42,5 +42,46 @@ def read_data() -> pd.DataFrame:
     return data
 
 
-data = read_data()
-print(data.head())
+def update_data(data: dict):
+    """
+    Update the data to the spreadsheet 'reservation'
+
+    Args:
+        data (dict): A dictionary of data to update
+
+        Example:
+        {
+            'date': '2023-08-28',
+            'email': 'example@gmail.com',
+            'password': 'example',
+            'name': 'Example',
+            'time': '12:01 PM',
+            'price (1 person)': 'CA$50',
+            'holes': '18 HOLES',
+            'players': '2-4 GOLFERS'
+        }
+    """
+    # Open the workbook
+    workbook = files.open('reservation')
+
+    # Get all sheets
+    sheet = workbook.sheet1
+
+    # Update the data
+    sheet.append_row(list(data.values()))
+
+    # Call the sheet to sort the data by the column 'date' in asc order except the first row
+    sheet.sort((1, 'asc'), range='A2:H10000')
+
+
+# data = {
+#     'date': '2023-08-01',
+#     'email': 'example@gmail.com',
+#     'password': 'example',
+#     'name': 'Example',
+#     'time': '12:01 PM',
+#     'price (1 person)': 'CA$50',
+#     'holes': '18 HOLES',
+#     'players': '2-4 GOLFERS'
+# }
+# update_data(data)

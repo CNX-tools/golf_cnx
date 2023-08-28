@@ -85,7 +85,7 @@ class BaseGUI(QWidget):
         self.headless_booking_checkBox.setObjectName(u"headless_booking_checkBox")
         self.headless_booking_checkBox.setGeometry(QRect(30, 350, 221, 41))
         self.headless_booking_checkBox.setFont(self.font2)
-        self.headless_booking_checkBox.setChecked(False)
+        self.headless_booking_checkBox.setChecked(True)
 
         # ------------------- Logs -------------------
 
@@ -153,8 +153,9 @@ class BaseGUI(QWidget):
         self.headless_booking_checkBox.setText(QCoreApplication.translate("Form", u"Headless in Booking Mode", None))
 
     def view_reservation_button_clicked(self):
-        # Open reservation detail file with default application
-        os.startfile(self.reservation_detail_dir)
+        # Open browser to view reservation details
+        reservation_info_url = 'https://docs.google.com/spreadsheets/d/1MZ7XPcLXAs0GDxYprF6xlHEsqD2_8mmEOaG-0aIbR3g/edit#gid=1168958722'
+        QDesktopServices.openUrl(QUrl(reservation_info_url))
 
     def clear_logs_button_clicked(self):
         self.logs_output.clear()
