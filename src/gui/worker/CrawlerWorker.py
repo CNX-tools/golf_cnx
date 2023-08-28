@@ -14,7 +14,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
-from utils.TelegramBot import send_message
 from utils.PrintUtils import print_log
 from utils.SeleniumUtils import UserActivity
 from utils.DayCompleteUtils import whether_day_has_reservation_before, get_day_complete_string
@@ -37,6 +36,7 @@ class CrawlerWorker(QObject):
         driver.quit()
         try:
             subprocess.run(["taskkill", "/F", "/IM", "chromium.exe"], check=True)
+            subprocess.run(["taskkill", "/F", "/IM", "chromedriver.exe"], check=True)
         except Exception as e:
             print_log(e)
             self.logger.emit(str(e), 'red')

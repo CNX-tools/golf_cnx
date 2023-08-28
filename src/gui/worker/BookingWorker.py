@@ -20,10 +20,12 @@ from src.utils.PrintUtils import print_log
 from src.utils.GetInfoUtils import get_random_info
 from src.utils.DayCompleteUtils import get_day_complete_string, whether_day_has_reservation_before
 from src.utils.GoogleSheetUtils import update_data
+from src.utils.TelegramBot import send_message
 
 # Constant URL
 SIGNIN_URL = "https://golfburnaby.cps.golf/onlineresweb/auth/verify-email"
 SIGNUP_URL = "https://golfburnaby.cps.golf/onlineresweb/auth/register"
+reservation_info_url = 'https://docs.google.com/spreadsheets/d/1MZ7XPcLXAs0GDxYprF6xlHEsqD2_8mmEOaG-0aIbR3g/edit#gid=1168958722'
 
 
 class BookingWorker(QObject):
@@ -42,6 +44,7 @@ class BookingWorker(QObject):
         try:
             driver.quit()
             subprocess.run(["taskkill", "/F", "/IM", "chromium.exe"], check=True)
+            subprocess.run(["taskkill", "/F", "/IM", "chromedriver.exe"], check=True)
         except Exception as e:
             self.logger.emit(str(e), 'red')
             print_log(e)
@@ -253,6 +256,12 @@ class BookingWorker(QObject):
 
         # Wait for 5 seconds before quit the driver
         self.logger.emit('Making reservation successfully ...', 'green')
+
+        # Send message to telegram bot
+        message = f'Make reservation successfully\n\n - Date: {get_day_complete_string(int(self.day))}\n\n - Email: {self.using_credential_info["email"]} \n\nClick here for more details: {reservation_info_url}'
+        send_message(message)
+        self.logger.emit('Sending message to telegram bot succesfully', 'green')
+
         self.logger.emit('Waiting for 8 seconds before quit the driver ...', 'black')
         time.sleep(8)
         self.__quit_driver(driver)

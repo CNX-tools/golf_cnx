@@ -1,8 +1,8 @@
 import random
 import os
 
-email_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'assets', 'emails.txt'))
-used_email_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'assets', 'used_info.csv'))
+email_dir = os.path.join(os.getcwd(), 'assets', 'emails.txt')
+used_email_dir = os.path.join(os.getcwd(), 'assets', 'used_info.csv')
 
 # Get the used info
 with open(used_email_dir, 'r') as f:
