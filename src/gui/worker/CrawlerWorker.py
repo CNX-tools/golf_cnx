@@ -173,6 +173,7 @@ class CrawlerWorker(QObject):
                 if check_result:
                     available_teetime = True
                     self.start_booking.emit(css_selector, date)
+                    self.destroy()
                 else:
                     continue
 

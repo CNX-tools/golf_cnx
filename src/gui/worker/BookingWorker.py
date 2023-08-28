@@ -29,8 +29,6 @@ class BookingWorker():
         self.selector = args.selector
         self.credential_mode = args.credential_mode
 
-        print(args.headless, args.day, args.selector, args.credential_mode)
-
     def __quit_driver(self, driver) -> None:
         driver.quit()
         try:
@@ -170,8 +168,11 @@ class BookingWorker():
 
         # Choose the 4 player button
         try:
-            time.sleep(1)
             print_log('Choosing 4 players option ...')
+            WebDriverWait(driver, 30).until(
+                EC.visibility_of_element_located((By.ID, 'mat-button-toggle-4-button')))
+
+            time.sleep(1)
 
             four_player_button = WebDriverWait(driver, 30).until(
                 lambda x: x.find_element(By.ID, 'mat-button-toggle-4-button'))
@@ -195,8 +196,6 @@ if __name__ == '__main__':
     parser.add_argument('--selector', type=str, required=True, help='CSS selector of the date button')
 
     args = parser.parse_args()
-
-    print(args)
 
     worker = BookingWorker(args)
 

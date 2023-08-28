@@ -18,7 +18,6 @@ def fill(driver: Chrome, email: str, password: str):
 
     email_input = WebDriverWait(driver, 30).until(
         lambda x: x.find_element(By.NAME, 'email'))
-    print('email_input: ', email_input)
     email_input.send_keys(email)
 
     # Hit enter
@@ -31,7 +30,6 @@ def fill(driver: Chrome, email: str, password: str):
 
     time.sleep(2)
     current_url = driver.current_url
-    print(current_url)
 
     if current_url == r'https://golfburnaby.cps.golf/onlineresweb/auth/register':  # The user hasn't registered yet
         print_log('The user hasn\'t registered yet ...')
@@ -48,7 +46,9 @@ def fill(driver: Chrome, email: str, password: str):
         # Hit enter
         password_input.send_keys(Keys.ENTER)
 
-        if EC.visibility_of_element_located((By.CLASS_NAME, 'error-message')) is not False:
+        time.sleep(1.5)
+
+        if EC.presence_of_all_elements_located((By.CLASS_NAME, 'error-message')) is not False:
             print_log('The password is not correct ...')
             return
         else:

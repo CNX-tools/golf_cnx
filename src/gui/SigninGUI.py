@@ -1,6 +1,5 @@
 import json
 import os
-import subprocess
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -16,6 +15,7 @@ class SiginGUI(BaseGUI):
         data = json.load(f)
 
     crawler_thread = QThread()
+    booking_process = QProcess()
 
     def __init__(self, MainWindow) -> None:
         super(SiginGUI, self).__init__(MainWindow)
@@ -96,20 +96,24 @@ class SiginGUI(BaseGUI):
             pass
 
     def run_booking_procedure(self, css_selector: str, date: str):
-        # Define the command to run
-        python_file_dir = os.path.join(os.getcwd(), 'src', 'gui', 'worker', 'BookingWorker.py')
-        headless_value = "True" if self.headless_booking_checkBox.isChecked() else "False"
-        command = [
-            "python",               # Command to run
-            python_file_dir,    # Script filename
-            "--credential_mode=signin",  # Credential argument with value
-            f"--day={int(date)}",        # Dateday argument with value
-            f'--selector="{css_selector}"',    # Selector argument with value (enclosed in quotes)
-            f'--headless={headless_value}'
-        ]
+        venv_activate = r'.venv/Scripts/activate'
+        python_file_dir = r'src/gui/worker/BookingWorker.py'
 
-        # Run the command in a new shell
-        process = subprocess.Popen(command, shell=True)
+        def open_in_terminal():
+            # Construct the commands
+            initial_command = f'@echo off'
+            activate_command = f'call {venv_activate}'
+            python_command = f'python {python_file_dir} --credential_mode=signin \
+                --day={int(date)} \
+                --selector={css_selector} \
+                --headless={self.headless_booking_checkBox.isChecked()}'
 
-        # # Wait for the process to finish
-        # process.wait()
+            # Combine the commands using the command separator '&' (Windows) or ';' (Unix-like)
+            combined_command = f'{initial_command} && {activate_command} && {python_command}'
+
+            self.booking_process.finished.connect(self.run_crawler)
+
+            # Run the combined command in a new shell using QProcess
+            self.booking_process.startDetached('cmd.exe', ['/C', combined_command])
+
+        open_in_terminal()

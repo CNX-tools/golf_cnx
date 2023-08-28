@@ -1,11 +1,10 @@
-import os
 import subprocess
 
 venv_activate = r'.venv/Scripts/activate'
 python_file_dir = r'src/gui/worker/BookingWorker.py'
 
 # Construct the commands
-initial_command = f'cls'
+initial_command = f'@echo off'
 activate_command = f'call {venv_activate}'
 python_command = f'python  {python_file_dir} --credential_mode=signin --day=25 --selector=.day-unit:nth-child(29) --headless=False'
 
