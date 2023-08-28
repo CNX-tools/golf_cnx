@@ -33,7 +33,7 @@ def fill(driver: Chrome, email: str, password: str):
 
     if current_url == r'https://golfburnaby.cps.golf/onlineresweb/auth/register':  # The user hasn't registered yet
         print_log('The user hasn\'t registered yet ...')
-        return
+        return False
 
     if current_url == r'https://golfburnaby.cps.golf/onlineresweb/auth/login':
         print_log('The user has already registered. Loggin in ...')
@@ -46,11 +46,12 @@ def fill(driver: Chrome, email: str, password: str):
         # Hit enter
         password_input.send_keys(Keys.ENTER)
 
-        time.sleep(1.5)
-
-        if EC.presence_of_all_elements_located((By.CLASS_NAME, 'error-message')) is not False:
-            print_log('The password is not correct ...')
-            return
-        else:
-            print_log('Login successfully ...')
-            return
+        # Check whether the element with class name "error-message" exist or not
+        try:
+            WebDriverWait(driver, 4).until(
+                EC.presence_of_element_located((By.CLASS_NAME, 'error-message')))
+            print_log('The password is incorrect. Please check again ...')
+            return False
+        except Exception as e:
+            print_log('The password is correct ...')
+            return True

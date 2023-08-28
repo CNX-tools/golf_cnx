@@ -7,6 +7,7 @@ from PyQt5.QtCore import *
 
 from src.gui.BaseGUI import BaseGUI
 from src.gui.worker.CrawlerWorker import CrawlerWorker
+from src.gui.worker.BookingWorker import BookingWorker
 
 
 class SiginGUI(BaseGUI):
@@ -15,7 +16,7 @@ class SiginGUI(BaseGUI):
         data = json.load(f)
 
     crawler_thread = QThread()
-    booking_process = QProcess()
+    booking_thread = QThread()
 
     def __init__(self, MainWindow) -> None:
         super(SiginGUI, self).__init__(MainWindow)
@@ -54,12 +55,19 @@ class SiginGUI(BaseGUI):
         self.show_password_button.clicked.connect(lambda: self.password_lineEdit.setEchoMode(
             QLineEdit.Normal) if self.password_lineEdit.echoMode() == QLineEdit.Password else self.password_lineEdit.setEchoMode(QLineEdit.Password))
 
+        self.book_button = QPushButton(self)
+        self.book_button.setObjectName(u"book_button")
+        self.book_button.setGeometry(QRect(80, 550, 111, 51))
+        self.book_button.setFont(self.font)
+        self.book_button.clicked.connect(lambda: self.run_booking_procedure('.day-unit:nth-child(29)', '30'))
+
         self.retranlate_UI()
 
     def retranlate_UI(self):
         self.email_label.setText(QCoreApplication.translate("self", u"Email :", None))
         self.password_label.setText(QCoreApplication.translate("self", u"Password :", None))
         self.show_password_button.setText(QCoreApplication.translate("Form", u"Show", None))
+        self.book_button.setText(QCoreApplication.translate("Form", u"Booking", None))
 
     def update_data(self):
         self.data['email'] = self.email_lineEdit.text()
@@ -73,7 +81,7 @@ class SiginGUI(BaseGUI):
             if self.crawler_thread.isRunning():
                 self.crawler.destroy()
 
-            self.crawler = CrawlerWorker(self.logs_output, self.headless_crawl_checkBox.isChecked())
+            self.crawler = CrawlerWorker(self.headless_crawl_checkBox.isChecked())
             self.crawler.moveToThread(self.crawler_thread)
             self.crawler.finished.connect(self.crawler_thread.quit)
             self.crawler.finished.connect(self.crawler.deleteLater)
@@ -96,24 +104,23 @@ class SiginGUI(BaseGUI):
             pass
 
     def run_booking_procedure(self, css_selector: str, date: str):
-        venv_activate = r'.venv/Scripts/activate'
-        python_file_dir = r'src/gui/worker/BookingWorker.py'
+        try:
+            self.booker = BookingWorker(self.headless_booking_checkBox.isChecked(), date, css_selector, 'signin')
+            self.booker.moveToThread(self.booking_thread)
 
-        def open_in_terminal():
-            # Construct the commands
-            initial_command = f'@echo off'
-            activate_command = f'call {venv_activate}'
-            python_command = f'python {python_file_dir} --credential_mode=signin \
-                --day={int(date)} \
-                --selector={css_selector} \
-                --headless={self.headless_booking_checkBox.isChecked()}'
+            self.booker.finished.connect(self.booking_thread.quit)
+            self.booker.finished.connect(self.booker.deleteLater)
+            self.booker.finished.connect(self.run_crawler)
 
-            # Combine the commands using the command separator '&' (Windows) or ';' (Unix-like)
-            combined_command = f'{initial_command} && {activate_command} && {python_command}'
+            # When thread started
+            self.booking_thread.started.connect(self.booker.run)
 
-            self.booking_process.finished.connect(self.run_crawler)
+            # Connect signals
+            self.booker.started.connect(self.update_log_horizontal_line)
+            self.booker.logger.connect(self.update_log)
 
-            # Run the combined command in a new shell using QProcess
-            self.booking_process.startDetached('cmd.exe', ['/C', combined_command])
-
-        open_in_terminal()
+            # Start thread
+            self.booking_thread.start()
+        except Exception as e:
+            print(e)
+            pass

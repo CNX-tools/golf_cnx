@@ -25,9 +25,8 @@ class CrawlerWorker(QObject):
     logger = pyqtSignal(str, str)
     start_booking = pyqtSignal(str, str)
 
-    def __init__(self, logs_output, headless: bool, parent=None):
+    def __init__(self, headless: bool, parent=None):
         super(CrawlerWorker, self).__init__(parent)
-        self.logs_output = logs_output
         self.message = ''
         self.headless = headless
         self._is_running = True
