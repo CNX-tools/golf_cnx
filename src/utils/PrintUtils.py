@@ -1,5 +1,4 @@
 from datetime import datetime
-from PyQt5.QtWidgets import QPlainTextEdit
 
 
 def print_log(message):

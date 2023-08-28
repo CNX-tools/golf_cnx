@@ -7,16 +7,15 @@ import subprocess
 import time
 import sys
 
-# sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-sys.path.append(os.path.join(os.getcwd(), 'src'))
+sys.path.append(os.path.join(os.getcwd()))
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
-from utils.PrintUtils import print_log
-from utils.SeleniumUtils import UserActivity
-from utils.DayCompleteUtils import whether_day_has_reservation_before, get_day_complete_string
+from src.utils.PrintUtils import print_log
+from src.utils.SeleniumUtils import UserActivity
+from src.utils.DayCompleteUtils import whether_day_has_reservation_before, get_day_complete_string
 
 
 class CrawlerWorker(QObject):
