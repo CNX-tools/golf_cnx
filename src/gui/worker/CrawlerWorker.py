@@ -37,6 +37,8 @@ class CrawlerWorker(QObject):
         except Exception as e:
             print_log(e)
             self.logger.emit(str(e), 'red')
+        finally:
+            self.finished.emit()
 
     def move_to_day(self, driver, css_selector):
         try:
@@ -94,7 +96,7 @@ class CrawlerWorker(QObject):
 
     def process(self, booking_url):
         if self._is_running is False:
-            return False
+            return
 
         while True:
             browser = UserActivity(headless=self.headless)
@@ -114,7 +116,7 @@ class CrawlerWorker(QObject):
 
         # Choose Riverway options
         if self._is_running is False:
-            return False
+            return
         try:
             WebDriverWait(driver, 30).until(
                 EC.presence_of_element_located((By.CLASS_NAME, 'courses-selection')))
@@ -131,7 +133,7 @@ class CrawlerWorker(QObject):
 
         # Choose the 4 player button
         if self._is_running is False:
-            return False
+            return
         try:
             time.sleep(1)
             print_log('Choosing 4 players option ...')
@@ -149,7 +151,7 @@ class CrawlerWorker(QObject):
 
         # Get the current active date from execute script
         if self._is_running is False:
-            return False
+            return
         try:
             WebDriverWait(driver, 30).until(
                 EC.presence_of_element_located((By.CLASS_NAME, 'main-calendar-container')))
@@ -172,10 +174,9 @@ class CrawlerWorker(QObject):
         time.sleep(1)
 
         # Iterate through the dates, check whether exist any session available
-        available_teetime = False
         for css_selector, date in current_active_dates:
             if self._is_running is False:
-                return False
+                return
             else:
                 print_log(f'Checking date: {date}')
                 self.logger.emit(f'Checking date: {date}', 'black')
@@ -183,14 +184,14 @@ class CrawlerWorker(QObject):
                 time.sleep(2)
                 check_result = self.check_for_each_day(driver, date)
                 if check_result:
-                    available_teetime = True
-                    self.start_booking.emit(css_selector, date)
                     self.destroy()
+                    self.start_booking.emit(css_selector, date)
+                    break
                 else:
                     continue
 
-        if not available_teetime:
-            self.__quit_driver(driver)
+        self.__quit_driver(driver)
+        time.sleep(2)
 
     def run(self):
         """
@@ -230,4 +231,3 @@ class CrawlerWorker(QObject):
         self._is_running = False
         self.logger.emit('Stopping crawler ...', 'red')
         print_log('Stopping crawler ...')
-        self.finished.emit()

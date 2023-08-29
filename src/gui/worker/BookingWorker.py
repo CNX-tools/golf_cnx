@@ -41,8 +41,9 @@ class BookingWorker(QObject):
         self.credential_mode = credential_mode
 
     def __quit_driver(self, driver) -> None:
+        driver.quit()
         try:
-            driver.quit()
+            subprocess.run(["taskkill", "/F", "/IM", "chromium.exe"], check=True)
         except Exception as e:
             print_log(e)
             self.logger.emit(str(e), 'red')
@@ -270,7 +271,7 @@ class BookingWorker(QObject):
         browser = UserActivity(headless=self.headless)
         driver = browser.driver
 
-        print_log('-' * 120)
+        print('-' * 120)
         # Open Sign In page
         try:
             if self.credential_mode == 'signin':
