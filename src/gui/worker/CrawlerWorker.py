@@ -37,8 +37,6 @@ class CrawlerWorker(QObject):
         except Exception as e:
             print_log(e)
             self.logger.emit(str(e), 'red')
-        finally:
-            self.finished.emit()
 
     def move_to_day(self, driver, css_selector):
         try:
@@ -231,3 +229,4 @@ class CrawlerWorker(QObject):
         self._is_running = False
         self.logger.emit('Stopping crawler ...', 'red')
         print_log('Stopping crawler ...')
+        self.finished.emit()
