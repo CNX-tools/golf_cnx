@@ -46,6 +46,8 @@ class BookingWorker(QObject):
         except Exception as e:
             print_log(e)
             self.logger.emit(str(e), 'red')
+        finally:
+            self.finished.emit()
 
     def move_to_day(self, driver, css_selector) -> None:
         try:
