@@ -32,14 +32,11 @@ class CrawlerWorker(QObject):
         self._is_running = True
 
     def __quit_driver(self, driver):
-        driver.quit()
         try:
-            subprocess.run(["taskkill", "/F", "/IM", "chromedriver.exe"], check=True)
-            subprocess.run(["taskkill", "/F", "/IM", "chromium.exe"], check=True)
+            driver.quit()
         except Exception as e:
             print_log(e)
             self.logger.emit(str(e), 'red')
-            self.finished.emit()
 
     def move_to_day(self, driver, css_selector):
         try:

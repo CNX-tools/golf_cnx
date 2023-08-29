@@ -43,15 +43,9 @@ class BookingWorker(QObject):
     def __quit_driver(self, driver) -> None:
         try:
             driver.quit()
-            subprocess.run(["taskkill", "/F", "/IM", "chromedriver.exe"], check=True)
-            subprocess.run(["taskkill", "/F", "/IM", "chromium.exe"], check=True)
         except Exception as e:
-            self.logger.emit(str(e), 'red')
             print_log(e)
-        finally:
-            self.finished.emit()
-            print_log('The booking procedure is finished ...')
-            self.logger.emit('The booking procedure is finished ...', 'black')
+            self.logger.emit(str(e), 'red')
 
     def move_to_day(self, driver, css_selector) -> None:
         try:
