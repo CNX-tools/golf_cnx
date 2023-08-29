@@ -105,6 +105,7 @@ class SiginGUI(BaseGUI):
 
     def run_booking_procedure(self, css_selector: str, date: str):
         try:
+
             self.booker = BookingWorker(self.headless_booking_checkBox.isChecked(), date, css_selector, 'signin')
             self.booker.moveToThread(self.booking_thread)
 
