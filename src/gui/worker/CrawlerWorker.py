@@ -93,21 +93,24 @@ class CrawlerWorker(QObject):
             return False
 
     def process(self, booking_url):
-        browser = UserActivity(headless=self.headless)
-        driver = browser.driver
-        current_active_dates = []
-
-        # Open the booking page
         if self._is_running is False:
             return False
-        try:
-            print_log(f'Opening booking page: {booking_url}')
-            self.logger.emit(f'Opening booking page: {booking_url}', 'black')
-            driver.get(booking_url)
-        except Exception as e:
-            print_log('Timeout, trying again ...')
-            self.logger.emit('Timeout, trying again ...', 'black')
-            driver.refresh()
+
+        while True:
+            browser = UserActivity(headless=self.headless)
+            driver = browser.driver
+            current_active_dates = []
+
+            # Open the booking page
+            try:
+                print_log(f'Opening booking page: {booking_url}')
+                self.logger.emit(f'Opening booking page: {booking_url}', 'black')
+                driver.get(booking_url)
+                break
+            except Exception as e:
+                print_log(str(e))
+                self.logger.emit(str(e))
+                continue
 
         # Choose Riverway options
         if self._is_running is False:
@@ -220,9 +223,11 @@ class CrawlerWorker(QObject):
             if self._is_running:
                 time.sleep(check_period * 60)
             else:
+                print_log('Crawler stopped')
                 self.logger.emit('Crawler stopped', 'green')
 
     def destroy(self):
         self._is_running = False
         self.logger.emit('Stopping crawler ...', 'red')
+        print_log('Stopping crawler ...')
         self.finished.emit()

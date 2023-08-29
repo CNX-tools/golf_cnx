@@ -245,18 +245,22 @@ class BookingWorker(QObject):
             self.__quit_driver(driver)
 
         # Store the reservation info
+        print_log('Storing the reservation info ...')
         self.logger.emit('Storing the reservation info ...', 'black')
         self.store_reservation_info(session_info)
 
         # Wait for 5 seconds before quit the driver
+        print_log('Making reservation successfully ...')
         self.logger.emit('Making reservation successfully ...', 'green')
 
         # Send message to telegram bot
         message = f'Make reservation successfully\n\n - Date: {get_day_complete_string(int(self.day))}\n\n - Email: {self.using_credential_info["email"]} \n\nClick here for more details: {reservation_info_url}'
         send_message(message)
         self.logger.emit('Sending message to telegram bot succesfully', 'green')
+        print_log('Sending message to telegram bot succesfully')
 
         self.logger.emit('Waiting for 8 seconds before quit the driver ...', 'black')
+        print_log('Waiting for 8 seconds before quit the driver ...')
         time.sleep(8)
         self.__quit_driver(driver)
 
