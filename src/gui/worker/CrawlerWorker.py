@@ -183,13 +183,14 @@ class CrawlerWorker(QObject):
                 check_result = self.check_for_each_day(driver, date)
                 if check_result:
                     self.destroy()
+                    self.__quit_driver(driver)
+                    time.sleep(1)
                     self.start_booking.emit(css_selector, date)
-                    break
+                    return
                 else:
                     continue
 
         self.__quit_driver(driver)
-        time.sleep(2)
 
     def run(self):
         """

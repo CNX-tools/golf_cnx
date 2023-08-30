@@ -101,7 +101,6 @@ class SiginGUI(BaseGUI):
 
             # When thread is finished
             self.crawler_thread.finished.connect(lambda: self.start_button.setText('START'))
-            self.crawler_thread.finished.connect(self.kill_process)
 
             # Start thread
             self.crawler_thread.start()
@@ -130,6 +129,3 @@ class SiginGUI(BaseGUI):
         except Exception as e:
             print(e)
             pass
-
-    def kill_process(self):
-        subprocess.Popen('taskkill /F /IM chromium.exe', shell=True)

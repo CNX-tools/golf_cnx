@@ -44,6 +44,7 @@ class BookingWorker(QObject):
         driver.quit()
         try:
             subprocess.run(["taskkill", "/F", "/IM", "chromium.exe"], check=True)
+            subprocess.run(["taskkill", "/F", "/IM", "chromedriver.exe"], check=True)
         except Exception as e:
             print_log(e)
             self.logger.emit(str(e), 'red')
@@ -210,7 +211,7 @@ class BookingWorker(QObject):
 
         try:
             # Check whether the element with class name "mat-dialog-title" exist or not (Has booked before)
-            booked_message = WebDriverWait(driver, 2).until(
+            booked_message = WebDriverWait(driver, 5).until(
                 EC.visibility_of_element_located((By.CLASS_NAME, 'mat-dialog-title')))
 
             if booked_message.is_displayed():

@@ -33,6 +33,7 @@ class UserActivity():
 
         # Get the Chrome driver
         self.driver = uc.Chrome(
-            # driver_executable_path=os.path.join(os.getcwd(), 'chromedriver.exe'),
+            driver_executable_path=os.path.join(os.getcwd(), 'chromedriver.exe'),
             browser_executable_path=os.path.join(os.getcwd(), 'Chromium', 'Application', 'chromium.exe'),
-            options=options)
+            options=options,
+        )
