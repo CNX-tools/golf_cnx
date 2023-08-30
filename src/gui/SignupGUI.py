@@ -14,7 +14,7 @@ class SignupGUI(BaseGUI):
     crawler_thread = QThread()
     booking_thread = QThread()
 
-    def __init__(self, MainWindow) -> None:
+    def __init__(self, MainWindow, run_status='normal') -> None:
         super(SignupGUI, self).__init__(MainWindow)
 
         self.sign_up_radioButton.setChecked(True)

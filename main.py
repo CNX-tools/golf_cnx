@@ -1,4 +1,5 @@
 import traceback
+import argparse
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMessageBox, QStackedWidget
@@ -20,6 +21,9 @@ if __name__ == "__main__":
     add_path_to_env()
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--restart", action="store_true", help="Restart the application")
+    args = parser.parse_args()
 
     # Set the time zone to Vancouver
     os.environ['TZ'] = 'America/Vancouver'
@@ -28,8 +32,12 @@ if __name__ == "__main__":
         app = QApplication(sys.argv)
         main_window = QStackedWidget()
 
-        sign_in_gui = SiginGUI(main_window)
-        main_window.addWidget(sign_in_gui)
+        if not args.restart:
+            sign_in_gui = SiginGUI(main_window)
+            main_window.addWidget(sign_in_gui)
+        else:
+            sign_in_gui = SiginGUI(main_window, run_status='restart')
+            main_window.addWidget(sign_in_gui)
 
         sign_up_gui = SignupGUI(main_window)
         main_window.addWidget(sign_up_gui)

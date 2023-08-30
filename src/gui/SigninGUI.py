@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -18,7 +19,7 @@ class SiginGUI(BaseGUI):
     crawler_thread = QThread()
     booking_thread = QThread()
 
-    def __init__(self, MainWindow) -> None:
+    def __init__(self, MainWindow, run_status='normal') -> None:
         super(SiginGUI, self).__init__(MainWindow)
 
         self.sign_in_radioButton.setChecked(True)
@@ -63,6 +64,9 @@ class SiginGUI(BaseGUI):
 
         self.retranlate_UI()
 
+        if run_status == 'restart':
+            self.start_button.click()
+
     def retranlate_UI(self):
         self.email_label.setText(QCoreApplication.translate("self", u"Email :", None))
         self.password_label.setText(QCoreApplication.translate("self", u"Password :", None))
@@ -97,6 +101,7 @@ class SiginGUI(BaseGUI):
 
             # When thread is finished
             self.crawler_thread.finished.connect(lambda: self.start_button.setText('START'))
+            self.crawler_thread.finished.connect(self.kill_process)
 
             # Start thread
             self.crawler_thread.start()
@@ -125,3 +130,6 @@ class SiginGUI(BaseGUI):
         except Exception as e:
             print(e)
             pass
+
+    def kill_process(self):
+        subprocess.Popen('taskkill /F /IM chromium.exe', shell=True)

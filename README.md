@@ -1,5 +1,5 @@
 # golf_cnx
 
 ```
-pyinstaller --onefile --icon=quan.ico main.py
+pyinstaller --onefile --noconsole --icon=quan.ico main.py
 ```
