@@ -67,8 +67,8 @@ class BookingWorker(QObject):
 
     def check_available_teetime(self, driver) -> bool:
         try:
-            no_teetime = WebDriverWait(driver, 30).until(
-                lambda x: x.find_element(By.CLASS_NAME, 'divNoTeeTime'))
+            no_teetime = WebDriverWait(driver, 3).until(
+                EC.visibility_of_element_located((By.CLASS_NAME, 'divNoTeeTime')))
             return False
         except Exception as e:
             return True
@@ -195,19 +195,29 @@ class BookingWorker(QObject):
             self.logger.emit(str(e), 'red')
 
     def make_reservation(self, driver) -> None:
+        time.sleep(1)
         try:
-            # CLick the first teetime button
-            teetime_button = WebDriverWait(driver, 30).until(
-                lambda x: x.find_element(By.CLASS_NAME, 'btnStepper'))
-            session_info = teetime_button.text.split('\n')
+            button = driver.execute_script("""
+                    var buttons = document.querySelector("button.btnStepper");
+                    return buttons.innerText;
+                                            """)
+            session_info = button.split('\n')
             session_info.extend(session_info[1].split(' | '))
             del session_info[1]
-
-            teetime_button.click()
         except Exception as e:
-            print_log(e)
-            self.logger.emit(str(e), 'red')
-            self.__quit_driver(driver)
+            print_log(f'Cannot read the first available session info with error: {e}')
+            self.logger.emit(f'Cannot read the first available session info with error: {e}', 'red')
+            return False
+
+        try:
+            button = driver.execute_script("""
+                    var buttons = document.querySelector(".mat-card-content.inner-content");
+                    buttons.click();
+                                            """)
+        except Exception as e:
+            print_log(f'Cannot click the first available session with error: {e}')
+            self.logger.emit(f'Cannot click the first available session with error: {e}', 'red')
+            return False
 
         try:
             # Check whether the element with class name "mat-dialog-title" exist or not (Has booked before)

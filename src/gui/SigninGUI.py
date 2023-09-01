@@ -56,11 +56,11 @@ class SiginGUI(BaseGUI):
         self.show_password_button.clicked.connect(lambda: self.password_lineEdit.setEchoMode(
             QLineEdit.Normal) if self.password_lineEdit.echoMode() == QLineEdit.Password else self.password_lineEdit.setEchoMode(QLineEdit.Password))
 
-        # self.book_button = QPushButton(self)
-        # self.book_button.setObjectName(u"book_button")
-        # self.book_button.setGeometry(QRect(80, 550, 111, 51))
-        # self.book_button.setFont(self.font)
-        # self.book_button.clicked.connect(lambda: self.run_booking_procedure('.day-unit:nth-child(32)', '30'))
+        self.book_button = QPushButton(self)
+        self.book_button.setObjectName(u"book_button")
+        self.book_button.setGeometry(QRect(80, 550, 111, 51))
+        self.book_button.setFont(self.font)
+        self.book_button.clicked.connect(lambda: self.run_booking_procedure('.day-unit:nth-child(6)', '1'))
 
         self.retranlate_UI()
 
@@ -71,7 +71,7 @@ class SiginGUI(BaseGUI):
         self.email_label.setText(QCoreApplication.translate("self", u"Email :", None))
         self.password_label.setText(QCoreApplication.translate("self", u"Password :", None))
         self.show_password_button.setText(QCoreApplication.translate("Form", u"Show", None))
-        # self.book_button.setText(QCoreApplication.translate("Form", u"Booking", None))
+        self.book_button.setText(QCoreApplication.translate("Form", u"Booking", None))
 
     def update_data(self):
         self.data['email'] = self.email_lineEdit.text()

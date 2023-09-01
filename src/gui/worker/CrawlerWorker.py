@@ -52,8 +52,8 @@ class CrawlerWorker(QObject):
 
     def check_available_teetime(self, driver):
         try:
-            no_teetime = WebDriverWait(driver, 30).until(
-                lambda x: x.find_element(By.CLASS_NAME, 'divNoTeeTime'))
+            no_teetime = WebDriverWait(driver, 3).until(
+                EC.visibility_of_element_located((By.CLASS_NAME, 'divNoTeeTime')))
             return False
         except Exception as e:
             return True
@@ -73,20 +73,25 @@ class CrawlerWorker(QObject):
 
         if self.check_available_teetime(driver):
             # Try to click the first available session on this date
+            time.sleep(1)
             try:
-                button = WebDriverWait(driver, 30).until(
-                    lambda x: x.find_element(By.CLASS_NAME, 'btnStepper'))
-                session_info = button.text.split('\n')
-                session_info.extend(session_info[1].split(' | '))
-                del session_info[1]
-                print_log(f'Found available tee time on date {date}: {session_info}')
-                self.logger.emit(f'Found available tee time on date {date}: {session_info}', 'green')
-                self.message += f'Found available tee time on date {date}: {session_info}\n\n'
-                return True
+                button = driver.execute_script("""
+                        var buttons = document.querySelector("button.btnStepper");
+                        return buttons.innerText;
+                                               """)
             except Exception as e:
                 print_log(f'Cannot click the first available session with error: {e}')
                 self.logger.emit(f'Cannot click the first available session with error: {e}', 'red')
                 return False
+
+            session_info = button.split('\n')
+            session_info.extend(session_info[1].split(' | '))
+            del session_info[1]
+            print_log(f'Found available tee time on date {date}: {session_info}')
+            self.logger.emit(f'Found available tee time on date {date}: {session_info}', 'green')
+            self.message += f'Found available tee time on date {date}: {session_info}\n\n'
+            return True
+
         else:
             print_log(f'No available tee time on date {date}')
             self.logger.emit(f'No available tee time on date {date}', 'black')
