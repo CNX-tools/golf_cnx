@@ -12,6 +12,7 @@ sys.path.append(os.path.join(os.getcwd()))
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
 
 from src.utils.PrintUtils import print_log
 from src.utils.SeleniumUtils import UserActivity
@@ -38,8 +39,13 @@ class CrawlerWorker(QObject):
             print_log(e)
             self.logger.emit(str(e), 'red')
 
+    def wait_for_page_done_load(self, driver):
+        WebDriverWait(driver, 20).until_not(
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.teetimeitem.ng-star-inserted')))
+
     def move_to_day(self, driver, css_selector):
         try:
+            self.wait_for_page_done_load(driver)
             date_button = WebDriverWait(driver, 20).until(
                 lambda x: x.find_element(By.CSS_SELECTOR, css_selector))
             date_button.click()
@@ -104,6 +110,7 @@ class CrawlerWorker(QObject):
         while True:
             browser = UserActivity(headless=self.headless)
             driver = browser.driver
+            driver.implicitly_wait(10)
             current_active_dates = []
 
             # Open the booking page
@@ -142,11 +149,11 @@ class CrawlerWorker(QObject):
             print_log('Choosing 4 players option ...')
             self.logger.emit('Choosing 4 players option ...', 'black')
             WebDriverWait(driver, 30).until(
-                EC.visibility_of_element_located((By.ID, 'mat-button-toggle-4-button'))
-            )
-            four_player_button = WebDriverWait(driver, 30).until(
-                lambda x: x.find_element(By.ID, 'mat-button-toggle-4-button'))
-            four_player_button.click()
+                EC.element_to_be_clickable((By.ID, 'mat-button-toggle-4-button')))
+            driver.execute_script("""
+                var button = document.getElementById('mat-button-toggle-4-button');
+                button.click();
+                """)
         except Exception as e:
             print_log(e)
             self.logger.emit(str(e), 'red')
@@ -184,7 +191,6 @@ class CrawlerWorker(QObject):
                 print_log(f'Checking date: {date}')
                 self.logger.emit(f'Checking date: {date}', 'black')
                 self.move_to_day(driver, css_selector)
-                time.sleep(2)
                 check_result = self.check_for_each_day(driver, date)
                 if check_result:
                     self.destroy()

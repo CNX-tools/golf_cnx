@@ -51,10 +51,15 @@ class BookingWorker(QObject):
         finally:
             self.finished.emit()
 
+    def wait_for_page_done_load(self, driver):
+        WebDriverWait(driver, 20).until_not(
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.teetimeitem.ng-star-inserted')))
+
     def move_to_day(self, driver, css_selector) -> None:
         try:
             print_log(f'Move to the day button with css selector is {css_selector} ...')
             self.logger.emit(f'Move to the day button with css selector is {css_selector} ...', 'black')
+            self.wait_for_page_done_load(driver)
             date_button = WebDriverWait(driver, 20).until(
                 lambda x: x.find_element(By.CSS_SELECTOR, css_selector))
             date_button.click()
@@ -349,13 +354,11 @@ class BookingWorker(QObject):
             print_log('Choosing 4 players option ...')
             self.logger.emit('Choosing 4 players option ...', 'black')
             WebDriverWait(driver, 30).until(
-                EC.visibility_of_element_located((By.ID, 'mat-button-toggle-4-button')))
-
-            time.sleep(1)
-
-            four_player_button = WebDriverWait(driver, 30).until(
-                lambda x: x.find_element(By.ID, 'mat-button-toggle-4-button'))
-            four_player_button.click()
+                EC.element_to_be_clickable((By.ID, 'mat-button-toggle-4-button')))
+            driver.execute_script("""
+                var button = document.getElementById('mat-button-toggle-4-button');
+                button.click();
+                """)
         except Exception as e:
             print_log(e)
             self.logger.emit(str(e), 'red')
