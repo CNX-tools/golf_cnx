@@ -60,7 +60,7 @@ class SiginGUI(BaseGUI):
         self.book_button.setObjectName(u"book_button")
         self.book_button.setGeometry(QRect(80, 550, 111, 51))
         self.book_button.setFont(self.font)
-        self.book_button.clicked.connect(lambda: self.run_booking_procedure('.day-unit:nth-child(6)', '1'))
+        self.book_button.clicked.connect(lambda: self.run_booking_procedure('.day-unit:nth-child(28)', '23'))
 
         self.retranlate_UI()
 

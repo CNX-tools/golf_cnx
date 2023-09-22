@@ -58,7 +58,7 @@ class CrawlerWorker(QObject):
 
     def check_available_teetime(self, driver):
         try:
-            no_teetime = WebDriverWait(driver, 3).until(
+            no_teetime = WebDriverWait(driver, 2).until(
                 EC.visibility_of_element_located((By.CLASS_NAME, 'divNoTeeTime')))
             return False
         except Exception as e:

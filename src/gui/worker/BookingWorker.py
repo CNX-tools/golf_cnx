@@ -212,7 +212,8 @@ class BookingWorker(QObject):
         except Exception as e:
             print_log(f'Cannot read the first available session info with error: {e}')
             self.logger.emit(f'Cannot read the first available session info with error: {e}', 'red')
-            return False
+            self.__quit_driver(driver)
+            return
 
         try:
             button = driver.execute_script("""
@@ -222,7 +223,8 @@ class BookingWorker(QObject):
         except Exception as e:
             print_log(f'Cannot click the first available session with error: {e}')
             self.logger.emit(f'Cannot click the first available session with error: {e}', 'red')
-            return False
+            self.__quit_driver(driver)
+            return
 
         try:
             # Check whether the element with class name "mat-dialog-title" exist or not (Has booked before)
@@ -235,7 +237,10 @@ class BookingWorker(QObject):
                 self.__quit_driver(driver)
                 return
         except Exception as e:
-            pass
+            print_log(e)
+            self.logger.emit(str(e), 'red')
+            self.__quit_driver(driver)
+            return
 
         try:
             # Passing Agreement Policy
@@ -249,6 +254,7 @@ class BookingWorker(QObject):
             print_log(e)
             self.logger.emit(str(e), 'red')
             self.__quit_driver(driver)
+            return
 
         try:
             # Click the final button
@@ -262,6 +268,7 @@ class BookingWorker(QObject):
             print_log(e)
             self.logger.emit(str(e), 'red')
             self.__quit_driver(driver)
+            return
 
         # Store the reservation info
         print_log('Storing the reservation info ...')
