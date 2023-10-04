@@ -12,6 +12,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
 
 from src.utils.SeleniumUtils import UserActivity
 import src.utils.SigninUtils as signin
@@ -46,7 +47,7 @@ class BookingWorker(QObject):
             subprocess.run(["taskkill", "/F", "/IM", "chromium.exe"], check=True)
             subprocess.run(["taskkill", "/F", "/IM", "chromedriver.exe"], check=True)
         except Exception as e:
-            print_log(e)
+            print_log(str(e))
             self.logger.emit(str(e), 'red')
         finally:
             self.finished.emit()
@@ -66,7 +67,7 @@ class BookingWorker(QObject):
             WebDriverWait(driver, 10).until(
                 EC.visibility_of_element_located((By.CLASS_NAME, 'rightlist')))
         except Exception as e:
-            print_log(e)
+            print_log(str(e))
             self.logger.emit(str(e), 'red')
             self.__quit_driver(driver)
 
@@ -120,7 +121,7 @@ class BookingWorker(QObject):
                 }
 
             except Exception as e:
-                print_log(e)
+                print_log(str(e))
                 self.logger.emit(str(e), 'red')
                 self.__quit_driver(driver)
         else:
@@ -136,7 +137,7 @@ class BookingWorker(QObject):
 
                 random_info = get_random_info()
             except Exception as e:
-                print_log(e)
+                print_log(str(e))
                 self.logger.emit(str(e), 'red')
                 self.__quit_driver(driver)
 
@@ -164,7 +165,7 @@ class BookingWorker(QObject):
                 }
 
             except Exception as e:
-                print_log(e)
+                print_log(str(e))
                 self.logger.emit(str(e), 'red')
                 self.__quit_driver(driver)
 
@@ -196,7 +197,7 @@ class BookingWorker(QObject):
             print_log('The reservation info is updated to the spreadsheet ...')
             self.logger.emit('The reservation info is updated to the spreadsheet ...', 'green')
         except Exception as e:
-            print_log(e)
+            print_log(str(e))
             self.logger.emit(str(e), 'red')
 
     def make_reservation(self, driver) -> None:
@@ -210,8 +211,8 @@ class BookingWorker(QObject):
             session_info.extend(session_info[1].split(' | '))
             del session_info[1]
         except Exception as e:
-            print_log(f'Cannot read the first available session info with error: {e}')
-            self.logger.emit(f'Cannot read the first available session info with error: {e}', 'red')
+            print_log(f'Cannot read the first available session info with error: {str(e)}')
+            self.logger.emit(f'Cannot read the first available session info with error: {str(e)}', 'red')
             self.__quit_driver(driver)
             return
 
@@ -221,51 +222,51 @@ class BookingWorker(QObject):
                     buttons.click();
                                             """)
         except Exception as e:
-            print_log(f'Cannot click the first available session with error: {e}')
-            self.logger.emit(f'Cannot click the first available session with error: {e}', 'red')
+            print_log(f'Cannot click the first available session with error: {str(e)}')
+            self.logger.emit(f'Cannot click the first available session with error: {str(e)}', 'red')
             self.__quit_driver(driver)
             return
 
+        # Check whether the element with class name "mat-dialog-title" exist or not (Has booked before)
         try:
-            # Check whether the element with class name "mat-dialog-title" exist or not (Has booked before)
-            booked_message = WebDriverWait(driver, 5).until(
-                EC.visibility_of_element_located((By.CLASS_NAME, 'mat-dialog-title')))
+            booked_message = WebDriverWait(driver, 6).until(
+                EC.visibility_of_element_located((By.TAG_NAME, 'mat-dialog-container')))
 
             if booked_message.is_displayed():
                 print_log(f'There has been a reservation in day {self.day} before ...')
                 self.logger.emit(f'There has been a reservation in day {self.day} before ...', 'red')
                 self.__quit_driver(driver)
                 return
+        except TimeoutException:
+            print_log(f'There has been no reservation in day {self.day} before ...')
+            self.logger.emit(f'There has been no reservation in day {self.day} before ...', 'green')
         except Exception as e:
-            print_log(e)
+            print_log(str(e))
             self.logger.emit(str(e), 'red')
             self.__quit_driver(driver)
             return
 
         try:
             # Passing Agreement Policy
-            WebDriverWait(driver, 30).until(
-                EC.visibility_of_element_located((By.CSS_SELECTOR, 'button.mat-focus-indicator.full-width.btn-action.mat-raised-button.mat-button-base.mat-primary')))
-            next_button = WebDriverWait(driver, 30).until(
-                lambda x: x.find_element(By.CSS_SELECTOR, 'button.mat-focus-indicator.full-width.btn-action.mat-raised-button.mat-button-base.mat-primary'))
-            time.sleep(1)
-            next_button.click()
+            time.sleep(8)
+            driver.execute_script("""
+                button = document.getElementsByClassName('mat-focus-indicator full-width btn-action mat-raised-button mat-button-base mat-primary');
+                button[0].click();
+                """)
         except Exception as e:
-            print_log(e)
+            print_log(str(e))
             self.logger.emit(str(e), 'red')
             self.__quit_driver(driver)
             return
 
         try:
-            # Click the final button
-            WebDriverWait(driver, 30).until(
-                EC.visibility_of_element_located((By.CSS_SELECTOR, 'button.mat-focus-indicator.large-button.button-continue.mat-flat-button.mat-button-base.mat-primary.ng-star-inserted')))
-            final_button = WebDriverWait(driver, 30).until(
-                lambda x: x.find_element(By.CSS_SELECTOR, 'button.mat-focus-indicator.large-button.button-continue.mat-flat-button.mat-button-base.mat-primary.ng-star-inserted'))
-            time.sleep(2)
-            final_button.click()
+            time.sleep(8)
+            driver.execute_script("""
+                final_button = document.getElementsByClassName('mat-focus-indicator large-button button-continue mat-flat-button mat-button-base mat-primary ng-star-inserted');
+                final_button[0].click();
+                """)
         except Exception as e:
-            print_log(e)
+            print_log(str(e))
             self.logger.emit(str(e), 'red')
             self.__quit_driver(driver)
             return
@@ -289,6 +290,7 @@ class BookingWorker(QObject):
         print_log('Waiting for 8 seconds before quit the driver ...')
         time.sleep(8)
         self.__quit_driver(driver)
+        return
 
     def process(self, booking_url):
         browser = UserActivity(headless=self.headless)
@@ -306,7 +308,7 @@ class BookingWorker(QObject):
                 print_log('Opening Signup page ...')
                 self.logger.emit('Opening Signup page ...', 'black')
         except Exception as e:
-            print_log(e)
+            print_log(str(e))
             self.logger.emit(str(e), 'red')
             self.__quit_driver(driver)
 
@@ -335,7 +337,7 @@ class BookingWorker(QObject):
             WebDriverWait(driver, 30).until(
                 EC.presence_of_element_located((By.CLASS_NAME, 'site-name')))
         except Exception as e:
-            print_log(e)
+            print_log(str(e))
             self.logger.emit(str(e), 'red')
             self.__quit_driver(driver)
 
@@ -352,7 +354,7 @@ class BookingWorker(QObject):
                 js = f.read()
             driver.execute_script(js)
         except Exception as e:
-            print_log(e)
+            print_log(str(e))
             self.logger.emit(str(e), 'red')
             self.__quit_driver(driver)
 
@@ -367,7 +369,7 @@ class BookingWorker(QObject):
                 button.click();
                 """)
         except Exception as e:
-            print_log(e)
+            print_log(str(e))
             self.logger.emit(str(e), 'red')
             self.__quit_driver(driver)
 

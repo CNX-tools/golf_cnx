@@ -39,6 +39,9 @@ def fill(driver: Chrome, email: str, password: str):
         print_log('The user has already registered. Loggin in ...')
 
         # Fill password:
+        time.sleep(2)
+        WebDriverWait(driver, 30).until(
+            EC.visibility_of_element_located((By.NAME, 'password')))
         password_input = WebDriverWait(driver, 30).until(
             lambda x: x.find_element(By.NAME, 'password'))
         password_input.send_keys(password)

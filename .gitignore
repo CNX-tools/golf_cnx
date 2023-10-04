@@ -161,4 +161,6 @@ cython_debug/
 
 Chromium
 
+build
+
 secret-key.json
