@@ -60,7 +60,7 @@ class SiginGUI(BaseGUI):
         self.book_button.setObjectName(u"book_button")
         self.book_button.setGeometry(QRect(80, 550, 111, 51))
         self.book_button.setFont(self.font)
-        self.book_button.clicked.connect(lambda: self.run_booking_procedure('.day-unit:nth-child(4)', '4'))
+        self.book_button.clicked.connect(lambda: self.run_booking_procedure('.day-unit:nth-child(5)', '5'))
 
         self.retranlate_UI()
 
@@ -116,6 +116,9 @@ class SiginGUI(BaseGUI):
             self.booker.finished.connect(self.booking_thread.quit)
             self.booker.finished.connect(self.booker.deleteLater)
             self.booker.finished.connect(self.run_crawler)
+
+            self.booker.stopped.connect(self.booking_thread.quit)
+            self.booker.stopped.connect(self.booker.deleteLater)
 
             # When thread started
             self.booking_thread.started.connect(self.booker.run)

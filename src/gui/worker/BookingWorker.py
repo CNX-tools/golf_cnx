@@ -31,6 +31,7 @@ reservation_info_url = 'https://docs.google.com/spreadsheets/d/1MZ7XPcLXAs0GDxYp
 
 class BookingWorker(QObject):
     finished = pyqtSignal()
+    stopped = pyqtSignal()
     started = pyqtSignal()
     logger = pyqtSignal(str, str)
 
@@ -51,6 +52,17 @@ class BookingWorker(QObject):
             self.logger.emit(str(e), 'red')
         finally:
             self.finished.emit()
+
+    def __quit_driver_absolutely(self, driver) -> None:
+        driver.quit()
+        try:
+            subprocess.run(["taskkill", "/F", "/IM", "chromium.exe"], check=True)
+            subprocess.run(["taskkill", "/F", "/IM", "chromedriver.exe"], check=True)
+        except Exception as e:
+            print_log(str(e))
+            self.logger.emit(str(e), 'red')
+        finally:
+            self.stopped.emit()
 
     def wait_for_page_done_load(self, driver):
         WebDriverWait(driver, 20).until_not(
@@ -229,13 +241,24 @@ class BookingWorker(QObject):
 
         # Check whether the element with class name "mat-dialog-title" exist or not (Has booked before)
         try:
-            booked_message = WebDriverWait(driver, 6).until(
+            time.sleep(2)
+            booked_message = WebDriverWait(driver, 5).until(
                 EC.visibility_of_element_located((By.TAG_NAME, 'mat-dialog-container')))
 
             if booked_message.is_displayed():
-                print_log(f'There has been a reservation in day {self.day} before ...')
-                self.logger.emit(f'There has been a reservation in day {self.day} before ...', 'red')
-                self.__quit_driver(driver)
+                if booked_message.find_element(By.TAG_NAME, 'p').text.find('exceeded the allowed amount of no shows') != -1:
+                    print_log(
+                        f'This account has been banned with email {self.using_credential_info["email"]} ...')
+                    self.logger.emit(
+                        f'This account has been banned with email {self.using_credential_info["email"]} ...', 'red')
+                    send_message(
+                        f'Account has been banned with email {self.using_credential_info["email"]}\nPlease change another account'
+                    )
+                    self.__quit_driver_absolutely(driver)
+                else:
+                    print_log(f'There has been a reservation in day {self.day} before ...')
+                    self.logger.emit(f'There has been a reservation in day {self.day} before ...', 'red')
+                    self.__quit_driver(driver)
                 return
         except TimeoutException:
             print_log(f'There has been no reservation in day {self.day} before ...')
