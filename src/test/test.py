@@ -1,4 +1,5 @@
 import json
+import subprocess
 import time
 from src.utils.SeleniumUtils import UserActivity
 from selenium.webdriver.common.keys import Keys
@@ -10,17 +11,21 @@ from bs4 import BeautifulSoup as bs
 
 
 def main():
-    driver = UserActivity(headless=True).driver
+    driver = UserActivity(headless=False).driver
 
     url = "https://finance.vietstock.vn/chung-khoan-phai-sinh/cw-thong-ke-giao-dich.htm"
     driver.get(url)
 
-    WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.ID, "statistic-price")))
+    date_block = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "txtFromDate")))
 
-    with open('test.html', 'w', encoding='utf-8') as f:
-        f.write(driver.page_source)
+    if date_block:
+        print('Found date block')
 
-    print('Done')
+    date_block.find_element(By.TAG_NAME, "input").send_keys("01/01/2021")
+
+    time.sleep(10)
+
+    subprocess.run(["taskkill", "/F", "/IM", "chromium.exe"])
 
 
 def parse():
@@ -63,5 +68,5 @@ def parse():
 
 
 if __name__ == "__main__":
-    # main()
-    parse()
+    main()
+    # parse()
