@@ -1,9 +1,9 @@
 import json
 import os
 import subprocess
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+from PyQt6.QtGui import *
+from PyQt6.QtWidgets import *
+from PyQt6.QtCore import *
 
 
 from src.gui.BaseGUI import BaseGUI
@@ -47,14 +47,14 @@ class SiginGUI(BaseGUI):
         self.password_lineEdit.setFont(self.font)
         self.password_lineEdit.setText(self.data['password'])
         self.password_lineEdit.textChanged.connect(self.update_data)
-        self.password_lineEdit.setEchoMode(QLineEdit.Password)
+        self.password_lineEdit.setEchoMode(QLineEdit.EchoMode.Password)
 
         self.show_password_button = QPushButton(self)
         self.show_password_button.setObjectName(u"show_password_button")
         self.show_password_button.setGeometry(QRect(959, 169, 51, 33))
         self.show_password_button.setFont(self.font)
         self.show_password_button.clicked.connect(lambda: self.password_lineEdit.setEchoMode(
-            QLineEdit.Normal) if self.password_lineEdit.echoMode() == QLineEdit.Password else self.password_lineEdit.setEchoMode(QLineEdit.Password))
+            QLineEdit.EchoMode.Normal) if self.password_lineEdit.echoMode() == QLineEdit.EchoMode.Password else self.password_lineEdit.setEchoMode(QLineEdit.EchoMode.Password))
 
         self.book_button = QPushButton(self)
         self.book_button.setObjectName(u"book_button")

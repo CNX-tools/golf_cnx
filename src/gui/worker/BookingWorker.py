@@ -7,7 +7,7 @@ import json
 # Add sys path of the project
 sys.path.append(os.path.join(os.getcwd()))
 
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC

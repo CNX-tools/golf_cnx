@@ -1,8 +1,8 @@
 import traceback
 import argparse
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QMessageBox, QStackedWidget
+from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication, QMessageBox, QStackedWidget
 
 import sys
 import os
@@ -19,8 +19,6 @@ def add_path_to_env():
 
 if __name__ == "__main__":
     add_path_to_env()
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     parser = argparse.ArgumentParser()
     parser.add_argument("--restart", action="store_true", help="Restart the application")
     args = parser.parse_args()
@@ -49,7 +47,7 @@ if __name__ == "__main__":
         main_window.setCurrentIndex(0)
         main_window.setWindowIcon(QIcon('./assets/logo.jpg'))
         main_window.show()
-        sys.exit(app.exec_())
+        sys.exit(app.exec())
     except Exception as e:
         error_message = f"An error occurred:\n{traceback.format_exc()}"
         QMessageBox.critical(None, "Error", error_message)

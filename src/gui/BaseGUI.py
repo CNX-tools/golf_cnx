@@ -1,7 +1,7 @@
 import os
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+from PyQt6.QtGui import *
+from PyQt6.QtWidgets import *
+from PyQt6.QtCore import *
 from abc import abstractmethod
 
 
@@ -15,16 +15,19 @@ class BaseGUI(QWidget):
         # ------------------- Font -------------------
         self.font = QFont()
         self.font.setPointSize(11)
+        self.font.setFamily(u"Ms Shell Dlg 2")
 
         self.font1 = QFont()
         self.font1.setPointSize(12)
         self.font1.setBold(True)
         self.font1.setWeight(75)
+        self.font1.setFamily(u"Ms Shell Dlg 2")
 
         self.font2 = QFont()
         self.font2.setPointSize(11)
         self.font2.setBold(True)
         self.font2.setWeight(75)
+        self.font2.setFamily(u"Ms Shell Dlg 2")
 
         # ------------------- App Name -------------------
         self.app_name = QLabel(self)
@@ -36,26 +39,18 @@ class BaseGUI(QWidget):
         self.line_1 = QFrame(self)
         self.line_1.setObjectName(u"line_1")
         self.line_1.setGeometry(QRect(270, -2, 3, 61))
-        self.line_1.setFrameShape(QFrame.VLine)
-        self.line_1.setFrameShadow(QFrame.Sunken)
 
         self.line_2 = QFrame(self)
         self.line_2.setObjectName(u"line_2")
         self.line_2.setGeometry(QRect(-21, 50, 292, 20))
-        self.line_2.setFrameShape(QFrame.HLine)
-        self.line_2.setFrameShadow(QFrame.Sunken)
 
         self.line_3 = QFrame(self)
         self.line_3.setObjectName(u"line_3")
         self.line_3.setGeometry(QRect(-20, 90, 292, 20))
-        self.line_3.setFrameShape(QFrame.HLine)
-        self.line_3.setFrameShadow(QFrame.Sunken)
 
         self.line_4 = QFrame(self)
         self.line_4.setObjectName(u"line_4")
         self.line_4.setGeometry(QRect(262, 100, 20, 561))
-        self.line_4.setFrameShape(QFrame.VLine)
-        self.line_4.setFrameShadow(QFrame.Sunken)
 
         # ------------------- Left Menu -------------------
 
